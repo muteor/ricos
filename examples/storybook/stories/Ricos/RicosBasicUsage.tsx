@@ -1,12 +1,27 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useRef } from 'react';
 import { RicosContent, RicosEditor } from 'ricos-editor';
 import { pluginDivider } from 'wix-rich-content-plugin-divider';
 
 const DividerEditor: FunctionComponent<{
   content?: RicosContent;
   injectedContent?: RicosContent;
-}> = ({ content, injectedContent }) => (
-  <RicosEditor plugins={[pluginDivider()]} content={content} injectedContent={injectedContent} />
-);
+  maxTextLength?: number;
+}> = ({ content, injectedContent, maxTextLength }) => {
+  const editorRef = useRef();
+  const logTraits = () => {
+    const traits = editorRef.current?.getContentTraits();
+    console.debug(traits); // eslint-disable-line
+  };
+  return (
+    <RicosEditor
+      plugins={[pluginDivider()]}
+      maxTextLength={maxTextLength}
+      injectedContent={injectedContent}
+      onChange={logTraits}
+      content={content}
+      ref={editorRef}
+    />
+  );
+};
 
 export default DividerEditor;

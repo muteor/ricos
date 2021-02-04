@@ -1,5 +1,6 @@
 import { RicosTheme } from './themeStrategy/themeTypes';
 import {
+  AvailableExperiments,
   RicosContent,
   OnErrorFunction,
   SEOSettings,
@@ -32,6 +33,8 @@ export interface RicosProps {
   mediaSettings?: MediaSettings;
   onError?: OnErrorFunction;
   theme?: RicosTheme;
+  textAlignment?: TextAlignment;
+  experiments?: AvailableExperiments; // internal use only
   /* Changes to this interface should also be reflected in the API docs */
 }
 
@@ -46,6 +49,7 @@ export interface RicosEditorProps extends RicosProps {
   toolbarSettings?: ToolbarSettings;
   onBusyChange?: OnBusyChangeFunction;
   injectedContent?: RicosContent;
+  maxTextLength?: number;
   editorEvents?: {
     subscribe: (
       event: string,
@@ -74,19 +78,17 @@ export type ContentStateGetter = (args?: ContentStateGetterArgs) => RicosContent
 
 export interface EditorDataInstance {
   getContentState: ContentStateGetter;
+  getContentTraits: () => {
+    isEmpty: boolean;
+    isContentChanged: boolean;
+  };
   getEditorState: () => EditorState;
-  refresh: (
-    editorState: EditorState,
-    contentTraits: { isEmpty: boolean; isContentChanged: boolean }
-  ) => void;
+  refresh: (editorState: EditorState) => void;
   waitForUpdate: () => void;
   getContentStatePromise: () => Promise<RicosContent>;
 }
 
-export type OnContentChangeFunction = (
-  content: RicosContent,
-  contentTraits: { isEmpty: boolean; isContentChanged: boolean }
-) => void;
+export type OnContentChangeFunction = (content: RicosContent) => void;
 
 export type OnBusyChangeFunction = (isBusy: boolean) => void;
 
@@ -118,3 +120,5 @@ export interface LinkSettings {
   anchorTarget?: AnchorTarget;
   relValue?: RelValue;
 }
+
+export type TextAlignment = 'left' | 'right';

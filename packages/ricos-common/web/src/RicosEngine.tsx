@@ -31,9 +31,10 @@ export class RicosEngine extends Component<EngineProps> {
       isPreviewExpanded = false,
       onPreviewExpand,
       children,
+      experiments,
     } = this.props;
 
-    const { theme, html } = themeStrategy({ plugins, cssOverride, ricosTheme });
+    const { theme, html } = themeStrategy({ plugins, cssOverride, ricosTheme, experiments });
     const htmls: ReactElement[] = [];
     if (html) {
       htmls.push(html);
@@ -41,16 +42,24 @@ export class RicosEngine extends Component<EngineProps> {
 
     const strategiesProps = merge(
       { theme },
-      pluginsStrategy(isViewer, plugins, children.props, theme, content)
+      pluginsStrategy({
+        isViewer,
+        plugins,
+        childProps: children.props,
+        cssOverride: theme,
+        content,
+        experiments,
+      })
     );
 
-    const { initialState: previewContent, ...previewStrategyResult } = previewStrategy(
+    const { initialState: previewContent, ...previewStrategyResult } = previewStrategy({
       isViewer,
       isPreviewExpanded,
       onPreviewExpand,
-      preview,
-      content
-    );
+      previewConfig: preview,
+      content,
+      experiments,
+    });
 
     return {
       strategyProps: merge(strategiesProps, previewStrategyResult),
@@ -73,6 +82,9 @@ export class RicosEngine extends Component<EngineProps> {
       mediaSettings = {},
       linkSettings = {},
       linkPanelSettings = {},
+      maxTextLength,
+      textAlignment,
+      experiments,
     } = this.props;
 
     const { strategyProps, previewContent, htmls } = this.runStrategies();
@@ -88,6 +100,7 @@ export class RicosEngine extends Component<EngineProps> {
     const isPreview = () => !!(previewContent && !isPreviewExpanded);
     const ricosPropsToMerge: RichContentProps = {
       isMobile,
+      maxTextLength,
       textToolbarType:
         !isMobile && (textToolbarContainer || useStaticTextToolbar) ? 'static' : 'inline',
       config: {
@@ -105,6 +118,8 @@ export class RicosEngine extends Component<EngineProps> {
       disabled: pauseMedia,
       anchorTarget,
       relValue,
+      textAlignment,
+      experiments,
     };
 
     const mergedRCProps = merge(strategyProps, _rcProps, ricosPropsToMerge, children.props);
